@@ -1,0 +1,71 @@
+def callPython(String pythonFile, String jobState="") 
+{
+	echo "callPython"
+	echo "$pythonFile"
+	pyPath = "${pythonDir}/${pythonFile}"
+	echo "$pyPath"
+	bat "python3 -u $pyPath $paramDir% $jobState"
+}
+
+pipeline {
+	parameters {
+        text(name: 'node_label', defaultValue: '', description: '')
+		text(name: 'resource', defaultValue: '', description: '')
+    }
+	
+    agent {
+        node {
+            label "$node_label"
+        }
+    }
+    
+    environment {
+        PATH = "${env.WindowsPath}"
+		paramDir = "${env.WORKSPACE}/${BUILD_NUMBER}"
+		pythonDir = "E:/project/JenkinsPipeline"
+    }
+    
+    options {
+        lock(resource: "$resource")
+    }
+    
+
+	stages {
+		stage('Hello') {
+			steps {
+			    echo "${env.WORKSPACE}"
+			    echo "${BUILD_NUMBER}"
+				echo "${env.paramDir}"
+			}
+		}
+		
+		stage('World') {
+			steps {
+				echo "Second Stage"
+				echo "${env.paramDir}"
+			}
+		}			
+	}
+	
+	post{
+        success {
+            echo 'something success'
+            
+ 
+        }
+        failure {
+          // Do something
+            echo 'something fail'
+            
+            
+        }
+        unstable {
+          // Do something
+            echo 'something unstable'
+        }
+        aborted {
+            echo 'something aborted'
+            
+        }
+    }
+}
